@@ -524,7 +524,7 @@
               redirect_uri = options.redirect_uri;
             }
           }
-          var flowUrl = "https://www.facebook.com/v2.6/dialog/oauth?client_id=" + clientId + "&redirect_uri=" + redirect_uri + "&response_type=token&scope=" + appScope.join(",");
+          var flowUrl = "https://www.facebook.com/v2.6/dialog/oauth?client_id=" + clientId + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=" + appScope.join(",");
           if(options !== undefined && options.hasOwnProperty("auth_type")) {
             flowUrl += "&auth_type=" + options.auth_type;
           }
@@ -533,14 +533,14 @@
             if((event.url).indexOf(redirect_uri) === 0) {
               browserRef.removeEventListener("exit",function(event){});
               browserRef.close();
-              var callbackResponse = (event.url).split("#")[1];
-              var responseParameters = (callbackResponse).split("&");
+              var callbackResponse = (event.url).split("#")[0];
+              var responseParameters = (callbackResponse).split("?");
               var parameterMap = [];
               for(var i = 0; i < responseParameters.length; i++) {
                 parameterMap[responseParameters[i].split("=")[0]] = responseParameters[i].split("=")[1];
               }
-              if(parameterMap.access_token !== undefined && parameterMap.access_token !== null) {
-                deferred.resolve({ access_token: parameterMap.access_token, expires_in: parameterMap.expires_in });
+              if(parameterMap.code !== undefined && parameterMap.code !== null) {
+                deferred.resolve({code: parameterMap.code});
               } else {
                 if ((event.url).indexOf("error_code=100") !== 0) {
                   deferred.reject("Facebook returned error_code=100: Invalid permissions");
